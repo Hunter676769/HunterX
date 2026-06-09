@@ -85,10 +85,10 @@ nav.scrolled{background:rgba(8,8,8,.97);border-color:rgba(232,93,4,.3)}
 }
 .hero-bg{
   position:absolute;inset:0;
-  background:radial-gradient(ellipse 80% 60% at 50% 40%,rgba(194,68,14,.18) 0%,transparent 70%),
-             radial-gradient(ellipse 40% 30% at 20% 80%,rgba(232,93,4,.08) 0%,transparent 60%),
-             #080808;
+  background:#080808;
 }
+.hero-bg img{width:100%;height:100%;object-fit:cover;object-position:center 30%;opacity:.28;filter:saturate(1.1)}
+.hero-bg::after{content:'';position:absolute;inset:0;background:linear-gradient(to bottom,rgba(8,8,8,.3) 0%,rgba(8,8,8,.6) 60%,rgba(8,8,8,.95) 100%)}
 .hero-grid{
   position:absolute;inset:0;
   background-image:linear-gradient(rgba(232,93,4,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(232,93,4,.04) 1px,transparent 1px);
@@ -186,8 +186,9 @@ section{padding:100px 20px}
 .model-card:hover{transform:translateY(-8px);border-color:rgba(232,93,4,.4);box-shadow:0 20px 48px rgba(0,0,0,.6),0 0 0 1px rgba(232,93,4,.15)}
 .model-img{
   width:100%;aspect-ratio:3/4;position:relative;overflow:hidden;
-  display:flex;align-items:flex-end;justify-content:center;
 }
+.model-img img{width:100%;height:100%;object-fit:cover;object-position:top center;transition:transform .5s ease}
+.model-card:hover .model-img img{transform:scale(1.06)}
 .model-silhouette{
   position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
 }
@@ -231,6 +232,8 @@ section{padding:100px 20px}
 }
 .skin-card:hover{transform:translateY(-4px) scale(1.02);border-color:rgba(232,93,4,.3);box-shadow:0 12px 32px rgba(0,0,0,.5)}
 .skin-img{aspect-ratio:1;position:relative;overflow:hidden}
+.skin-img img{width:100%;height:100%;object-fit:cover;transition:transform .4s ease}
+.skin-card:hover .skin-img img{transform:scale(1.08)}
 .skin-details{padding:12px}
 .skin-name{font-size:13px;font-weight:600;color:var(--bone);letter-spacing:.02em}
 .skin-type{font-size:11px;color:var(--text-muted);margin-top:3px;letter-spacing:.06em}
@@ -255,8 +258,10 @@ section{padding:100px 20px}
 .weapon-icon{
   width:72px;height:52px;display:flex;align-items:center;justify-content:center;
   background:var(--surface2);border-radius:8px;border:1px solid rgba(255,255,255,.05);
-  flex-shrink:0;
+  flex-shrink:0;overflow:hidden;
 }
+.weapon-icon img{width:100%;height:100%;object-fit:cover;opacity:.85;transition:opacity .2s}
+.weapon-row:hover .weapon-icon img{opacity:1}
 .weapon-main{flex:1;min-width:0}
 .weapon-name{font-family:'Anton',sans-serif;font-size:20px;color:#fff;letter-spacing:.04em}
 .weapon-category{font-size:12px;color:var(--text-muted);margin-top:2px;letter-spacing:.1em;text-transform:uppercase}
@@ -337,7 +342,7 @@ footer{
 
 <!-- HERO -->
 <section id="hero" aria-label="Hero">
-  <div class="hero-bg"></div>
+  <div class="hero-bg"><img src="https://files.facepunch.com/paddy/20240905/rust_202409_ttk_heroimage.jpg" alt="" aria-hidden="true" loading="eager"/></div>
   <div class="hero-grid" aria-hidden="true"></div>
   <div class="hero-particles" aria-hidden="true" id="particles"></div>
 
@@ -384,19 +389,8 @@ footer{
 
     <article class="model-card reveal" style="transition-delay:.05s" tabindex="0" aria-label="Bandit skin — Epic rarity">
       <div class="model-img">
-        <div class="model-bg-glow" style="background:radial-gradient(ellipse 100% 80% at 50% 100%,rgba(124,58,237,.25),transparent)"></div>
-        <div class="model-silhouette">
-          <svg width="140" height="240" viewBox="0 0 140 280" fill="none" aria-hidden="true">
-            <ellipse cx="70" cy="40" rx="26" ry="28" fill="#1a1a1a" stroke="rgba(167,139,250,.3)" stroke-width="1"/>
-            <rect x="36" y="66" width="68" height="90" rx="8" fill="#1a1a1a" stroke="rgba(167,139,250,.2)" stroke-width="1"/>
-            <rect x="12" y="70" width="26" height="72" rx="6" fill="#161616" stroke="rgba(167,139,250,.15)" stroke-width="1"/>
-            <rect x="102" y="70" width="26" height="72" rx="6" fill="#161616" stroke="rgba(167,139,250,.15)" stroke-width="1"/>
-            <rect x="42" y="154" width="26" height="94" rx="6" fill="#161616" stroke="rgba(167,139,250,.15)" stroke-width="1"/>
-            <rect x="72" y="154" width="26" height="94" rx="6" fill="#161616" stroke="rgba(167,139,250,.15)" stroke-width="1"/>
-            <rect x="36" y="66" width="68" height="28" rx="8" fill="rgba(124,58,237,.15)"/>
-            <line x1="36" y1="95" x2="104" y2="95" stroke="rgba(167,139,250,.1)" stroke-width="1"/>
-          </svg>
-        </div>
+        <img src="https://files.facepunch.com/paddy/20250128/knightarmour_07.jpg" alt="Bandit player model in dark armor"/>
+        <div style="position:absolute;inset:0;background:linear-gradient(to top,rgba(8,8,8,.85) 0%,transparent 50%)"></div>
       </div>
       <div class="model-info">
         <div class="model-name">BANDIT</div>
@@ -410,19 +404,8 @@ footer{
 
     <article class="model-card reveal" style="transition-delay:.1s" tabindex="0" aria-label="Nomad skin — Legendary rarity">
       <div class="model-img">
-        <div class="model-bg-glow" style="background:radial-gradient(ellipse 100% 80% at 50% 100%,rgba(232,93,4,.25),transparent)"></div>
-        <div class="model-silhouette">
-          <svg width="140" height="240" viewBox="0 0 140 280" fill="none" aria-hidden="true">
-            <ellipse cx="70" cy="38" rx="28" ry="30" fill="#1a1a1a" stroke="rgba(232,93,4,.4)" stroke-width="1.5"/>
-            <rect x="32" y="66" width="76" height="96" rx="10" fill="#1a1a1a" stroke="rgba(232,93,4,.25)" stroke-width="1"/>
-            <rect x="8" y="68" width="28" height="76" rx="7" fill="#161616" stroke="rgba(232,93,4,.2)" stroke-width="1"/>
-            <rect x="104" y="68" width="28" height="76" rx="7" fill="#161616" stroke="rgba(232,93,4,.2)" stroke-width="1"/>
-            <rect x="38" y="160" width="28" height="98" rx="7" fill="#161616" stroke="rgba(232,93,4,.2)" stroke-width="1"/>
-            <rect x="74" y="160" width="28" height="98" rx="7" fill="#161616" stroke="rgba(232,93,4,.2)" stroke-width="1"/>
-            <rect x="32" y="66" width="76" height="32" rx="10" fill="rgba(232,93,4,.15)"/>
-            <ellipse cx="70" cy="38" rx="20" ry="10" fill="rgba(232,93,4,.1)"/>
-          </svg>
-        </div>
+        <img src="https://files.facepunch.com/paddy/20250128/rust_primupdate_teaser_armourset_01.jpg" alt="Nomad player model in full armor set"/>
+        <div style="position:absolute;inset:0;background:linear-gradient(to top,rgba(8,8,8,.85) 0%,transparent 50%)"></div>
       </div>
       <div class="model-info">
         <div class="model-name">NOMAD</div>
@@ -436,18 +419,8 @@ footer{
 
     <article class="model-card reveal" style="transition-delay:.15s" tabindex="0" aria-label="Scavenger skin — Rare rarity">
       <div class="model-img">
-        <div class="model-bg-glow" style="background:radial-gradient(ellipse 100% 80% at 50% 100%,rgba(74,124,89,.25),transparent)"></div>
-        <div class="model-silhouette">
-          <svg width="140" height="240" viewBox="0 0 140 280" fill="none" aria-hidden="true">
-            <ellipse cx="70" cy="40" rx="24" ry="26" fill="#1a1a1a" stroke="rgba(74,124,89,.35)" stroke-width="1"/>
-            <rect x="38" y="64" width="64" height="86" rx="8" fill="#1a1a1a" stroke="rgba(74,124,89,.2)" stroke-width="1"/>
-            <rect x="14" y="68" width="24" height="68" rx="6" fill="#161616" stroke="rgba(74,124,89,.18)" stroke-width="1"/>
-            <rect x="102" y="68" width="24" height="68" rx="6" fill="#161616" stroke="rgba(74,124,89,.18)" stroke-width="1"/>
-            <rect x="44" y="148" width="24" height="90" rx="6" fill="#161616" stroke="rgba(74,124,89,.18)" stroke-width="1"/>
-            <rect x="72" y="148" width="24" height="90" rx="6" fill="#161616" stroke="rgba(74,124,89,.18)" stroke-width="1"/>
-            <rect x="38" y="64" width="64" height="24" rx="8" fill="rgba(74,124,89,.15)"/>
-          </svg>
-        </div>
+        <img src="https://files.facepunch.com/lewis/1b3011b110/junglepack_media_dlc_coconutarmour_01.jpg" alt="Scavenger player model in jungle armor"/>
+        <div style="position:absolute;inset:0;background:linear-gradient(to top,rgba(8,8,8,.85) 0%,transparent 50%)"></div>
       </div>
       <div class="model-info">
         <div class="model-name">SCAVENGER</div>
@@ -461,20 +434,8 @@ footer{
 
     <article class="model-card reveal" style="transition-delay:.2s" tabindex="0" aria-label="Warlord skin — Legendary rarity">
       <div class="model-img">
-        <div class="model-bg-glow" style="background:radial-gradient(ellipse 100% 80% at 50% 100%,rgba(194,68,14,.3),transparent)"></div>
-        <div class="model-silhouette">
-          <svg width="140" height="240" viewBox="0 0 140 280" fill="none" aria-hidden="true">
-            <ellipse cx="70" cy="36" rx="30" ry="32" fill="#1a1a1a" stroke="rgba(194,68,14,.5)" stroke-width="2"/>
-            <rect x="28" y="66" width="84" height="104" rx="10" fill="#1a1a1a" stroke="rgba(194,68,14,.3)" stroke-width="1.5"/>
-            <rect x="4" y="64" width="28" height="82" rx="7" fill="#161616" stroke="rgba(194,68,14,.25)" stroke-width="1"/>
-            <rect x="108" y="64" width="28" height="82" rx="7" fill="#161616" stroke="rgba(194,68,14,.25)" stroke-width="1"/>
-            <rect x="34" y="168" width="30" height="100" rx="7" fill="#161616" stroke="rgba(194,68,14,.25)" stroke-width="1"/>
-            <rect x="76" y="168" width="30" height="100" rx="7" fill="#161616" stroke="rgba(194,68,14,.25)" stroke-width="1"/>
-            <rect x="28" y="66" width="84" height="38" rx="10" fill="rgba(194,68,14,.2)"/>
-            <line x1="28" y1="105" x2="112" y2="105" stroke="rgba(194,68,14,.15)" stroke-width="1.5"/>
-            <rect x="48" y="80" width="44" height="16" rx="4" fill="rgba(194,68,14,.1)"/>
-          </svg>
-        </div>
+        <img src="https://files.facepunch.com/paddy/20250130/medieval_knightArmourPose_02.jpg" alt="Warlord player model in knight armor"/>
+        <div style="position:absolute;inset:0;background:linear-gradient(to top,rgba(8,8,8,.85) 0%,transparent 50%)"></div>
       </div>
       <div class="model-info">
         <div class="model-name">WARLORD</div>
@@ -501,21 +462,8 @@ footer{
 
   <div class="skins-featured">
     <article class="skin-featured-card reveal-left" tabindex="0" aria-label="Dragonfire AK-47 — Featured Legendary skin">
-      <div class="skin-featured-bg" style="background:linear-gradient(135deg,#1a0a00 0%,#3d1303 30%,#7a2707 60%,#c2440e 100%)">
-        <div style="position:absolute;inset:0;background:url('data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%22400%22 height=%22225%22><defs><radialGradient id=%22g%22 cx=%2270%25%22 cy=%2250%25%22><stop offset=%220%25%22 stop-color=%22%23e85d04%22 stop-opacity=%220.4%22/><stop offset=%22100%25%22 stop-color=%22transparent%22/></radialGradient></defs><rect width=%22400%22 height=%22225%22 fill=%22url(%23g)%22/></svg>');opacity:.8"></div>
-        <!-- Weapon SVG -->
-        <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center">
-          <svg width="280" height="100" viewBox="0 0 280 100" fill="none" aria-hidden="true">
-            <rect x="20" y="38" width="200" height="22" rx="4" fill="#2a0e00" stroke="rgba(232,93,4,.6)" stroke-width="1.5"/>
-            <rect x="20" y="42" width="200" height="14" rx="3" fill="url(#dr1)"/>
-            <defs><linearGradient id="dr1" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#7a2707"/><stop offset="100%" stop-color="#e85d04"/></linearGradient></defs>
-            <rect x="220" y="34" width="50" height="30" rx="3" fill="#1a0800" stroke="rgba(232,93,4,.4)" stroke-width="1"/>
-            <rect x="100" y="60" width="30" height="28" rx="4" fill="#1a0800" stroke="rgba(232,93,4,.3)" stroke-width="1"/>
-            <rect x="60" y="55" width="16" height="40" rx="3" fill="#150600" stroke="rgba(232,93,4,.25)" stroke-width="1"/>
-            <rect x="18" y="40" width="6" height="18" rx="2" fill="#0d0400"/>
-            <circle cx="8" cy="49" r="5" fill="none" stroke="rgba(232,93,4,.5)" stroke-width="1.5"/>
-          </svg>
-        </div>
+      <div class="skin-featured-bg" style="background:#0a0500">
+        <img src="https://files.facepunch.com/paddy/20250130/medieval_AR_01.jpg" alt="Medieval AK-47 skin" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:.8"/>
       </div>
       <div class="skin-featured-content">
         <div style="position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,.9) 0%,rgba(0,0,0,.3) 50%,transparent 100%)"></div>
@@ -528,8 +476,8 @@ footer{
     </article>
 
     <article class="skin-featured-card reveal-right" tabindex="0" aria-label="Void Operative — Featured Epic armor skin">
-      <div class="skin-featured-bg" style="background:linear-gradient(135deg,#060010 0%,#150030 30%,#2d1060 60%,#5b21b6 100%)">
-        <div style="position:absolute;inset:0;background:radial-gradient(ellipse at 70% 50%,rgba(124,58,237,.5),transparent 70%)"></div>
+      <div class="skin-featured-bg" style="background:#050008">
+        <img src="https://files.facepunch.com/paddy/20250130/medieval_knightArmour_tableTop_02.jpg" alt="Knight armor set tabletop view" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:.8"/>
       </div>
       <div class="skin-featured-content">
         <div style="position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,.9) 0%,rgba(0,0,0,.3) 50%,transparent 100%)"></div>
@@ -545,14 +493,8 @@ footer{
   <div class="skins-grid">
     <!-- skin cards -->
     <article class="skin-card reveal" style="transition-delay:.05s" tabindex="0">
-      <div class="skin-img" style="background:linear-gradient(135deg,#1a0000,#5c1d05)">
-        <div style="height:100%;display:flex;align-items:center;justify-content:center">
-          <svg width="80" height="40" viewBox="0 0 80 40" fill="none" aria-hidden="true">
-            <rect x="4" y="14" width="56" height="12" rx="3" fill="#7a2707" stroke="rgba(232,93,4,.5)" stroke-width="1"/>
-            <rect x="60" y="10" width="16" height="20" rx="2" fill="#5c1d05" stroke="rgba(232,93,4,.4)" stroke-width="1"/>
-            <rect x="24" y="26" width="10" height="12" rx="2" fill="#3d1303"/>
-          </svg>
-        </div>
+      <div class="skin-img">
+        <img src="https://files.facepunch.com/paddy/20250130/medieval_AR_closeup_01.jpg" alt="Inferno LR-300 assault rifle skin"/>
       </div>
       <div class="skin-details">
         <div class="skin-name">Inferno LR-300</div>
@@ -561,14 +503,8 @@ footer{
     </article>
 
     <article class="skin-card reveal" style="transition-delay:.08s" tabindex="0">
-      <div class="skin-img" style="background:linear-gradient(135deg,#001a10,#0d3320)">
-        <div style="height:100%;display:flex;align-items:center;justify-content:center">
-          <svg width="70" height="50" viewBox="0 0 70 50" fill="none" aria-hidden="true">
-            <rect x="10" y="18" width="48" height="14" rx="3" fill="#0d3320" stroke="rgba(74,124,89,.5)" stroke-width="1"/>
-            <rect x="55" y="14" width="12" height="22" rx="2" fill="#0a2a18" stroke="rgba(74,124,89,.4)" stroke-width="1"/>
-            <rect x="18" y="32" width="10" height="14" rx="2" fill="#071a10"/>
-          </svg>
-        </div>
+      <div class="skin-img">
+        <img src="https://files.facepunch.com/lewis/1b2911b113/jungleupdate_obsidianknife_01.jpg" alt="Obsidian knife jungle skin"/>
       </div>
       <div class="skin-details">
         <div class="skin-name">Forest Ghost</div>
@@ -577,14 +513,8 @@ footer{
     </article>
 
     <article class="skin-card reveal" style="transition-delay:.11s" tabindex="0">
-      <div class="skin-img" style="background:linear-gradient(135deg,#0a0a20,#1e1e4a)">
-        <div style="height:100%;display:flex;align-items:center;justify-content:center">
-          <svg width="60" height="70" viewBox="0 0 60 70" fill="none" aria-hidden="true">
-            <rect x="22" y="5" width="16" height="48" rx="4" fill="#1e1e4a" stroke="rgba(139,157,168,.4)" stroke-width="1"/>
-            <rect x="14" y="40" width="32" height="14" rx="4" fill="#16163a" stroke="rgba(139,157,168,.3)" stroke-width="1"/>
-            <rect x="26" y="53" width="8" height="14" rx="2" fill="#10102a"/>
-          </svg>
-        </div>
+      <div class="skin-img">
+        <img src="https://files.facepunch.com/paddy/20250203/rust_minicrossbow_hero_01.jpg" alt="Mini crossbow weapon skin"/>
       </div>
       <div class="skin-details">
         <div class="skin-name">Nightwatch M92</div>
@@ -593,15 +523,8 @@ footer{
     </article>
 
     <article class="skin-card reveal" style="transition-delay:.14s" tabindex="0">
-      <div class="skin-img" style="background:linear-gradient(135deg,#1a1000,#4a2e00)">
-        <div style="height:100%;display:flex;align-items:center;justify-content:center">
-          <svg width="80" height="45" viewBox="0 0 80 45" fill="none" aria-hidden="true">
-            <rect x="3" y="16" width="62" height="14" rx="2" fill="#4a2e00" stroke="rgba(212,197,169,.35)" stroke-width="1"/>
-            <rect x="62" y="12" width="14" height="22" rx="2" fill="#3a2200"/>
-            <rect x="20" y="30" width="14" height="12" rx="2" fill="#2a1800"/>
-            <rect x="3" y="18" width="12" height="10" rx="1" fill="#2a1800"/>
-          </svg>
-        </div>
+      <div class="skin-img">
+        <img src="https://files.facepunch.com/paddy/20250203/rust_minicrossbow_tabletop_01.jpg" alt="Crossbow tabletop view skin"/>
       </div>
       <div class="skin-details">
         <div class="skin-name">Desert Hawk</div>
@@ -610,14 +533,8 @@ footer{
     </article>
 
     <article class="skin-card reveal" style="transition-delay:.17s" tabindex="0">
-      <div class="skin-img" style="background:linear-gradient(135deg,#001015,#003040)">
-        <div style="height:100%;display:flex;align-items:center;justify-content:center">
-          <svg width="50" height="70" viewBox="0 0 50 70" fill="none" aria-hidden="true">
-            <rect x="18" y="4" width="14" height="50" rx="3" fill="#003040" stroke="rgba(0,200,255,.3)" stroke-width="1"/>
-            <rect x="10" y="44" width="30" height="12" rx="3" fill="#002535"/>
-            <rect x="21" y="56" width="8" height="12" rx="2" fill="#001a25"/>
-          </svg>
-        </div>
+      <div class="skin-img">
+        <img src="https://files.facepunch.com/paddy/20250130/medieval_AR_05.jpg" alt="Medieval assault rifle skin"/>
       </div>
       <div class="skin-details">
         <div class="skin-name">Arctic Blaze</div>
@@ -626,14 +543,8 @@ footer{
     </article>
 
     <article class="skin-card reveal" style="transition-delay:.2s" tabindex="0">
-      <div class="skin-img" style="background:linear-gradient(135deg,#200010,#500030)">
-        <div style="height:100%;display:flex;align-items:center;justify-content:center">
-          <svg width="64" height="54" viewBox="0 0 64 54" fill="none" aria-hidden="true">
-            <rect x="5" y="18" width="52" height="18" rx="4" fill="#500030" stroke="rgba(244,63,94,.4)" stroke-width="1"/>
-            <rect x="54" y="14" width="6" height="26" rx="2" fill="#3a0020"/>
-            <rect x="18" y="36" width="16" height="14" rx="3" fill="#2a0018"/>
-          </svg>
-        </div>
+      <div class="skin-img">
+        <img src="https://files.facepunch.com/paddy/20250130/medieval_AR_08.jpg" alt="Medieval assault rifle alternate skin"/>
       </div>
       <div class="skin-details">
         <div class="skin-name">Bloodrush</div>
@@ -659,12 +570,7 @@ footer{
 
     <article class="weapon-row reveal" style="transition-delay:.04s" tabindex="0" aria-label="AK-47 assault rifle, 80 damage">
       <div class="weapon-icon" aria-hidden="true">
-        <svg width="48" height="22" viewBox="0 0 48 22" fill="none">
-          <rect x="2" y="7" width="36" height="8" rx="2" fill="#2a1a0a" stroke="#c2440e" stroke-width="1"/>
-          <rect x="36" y="4" width="10" height="14" rx="1" fill="#1a0e04" stroke="rgba(194,68,14,.5)" stroke-width="1"/>
-          <rect x="12" y="15" width="8" height="6" rx="1" fill="#120a02"/>
-          <rect x="2" y="8" width="4" height="6" rx="1" fill="#100800"/>
-        </svg>
+        <img src="https://files.facepunch.com/paddy/20250130/medieval_AR_closeup_05.jpg" alt="AK-47"/>
       </div>
       <div class="weapon-main">
         <div class="weapon-name">AK-47</div>
@@ -684,11 +590,7 @@ footer{
 
     <article class="weapon-row reveal" style="transition-delay:.07s" tabindex="0" aria-label="LR-300 assault rifle, 40 damage">
       <div class="weapon-icon" aria-hidden="true">
-        <svg width="48" height="22" viewBox="0 0 48 22" fill="none">
-          <rect x="2" y="7" width="38" height="8" rx="2" fill="#0e1a0a" stroke="#4a7c59" stroke-width="1"/>
-          <rect x="38" y="4" width="8" height="14" rx="1" fill="#0a120a" stroke="rgba(74,124,89,.5)" stroke-width="1"/>
-          <rect x="14" y="15" width="10" height="6" rx="1" fill="#080e06"/>
-        </svg>
+        <img src="https://files.facepunch.com/lewis/1b3011b116/ar-header.jpg" alt="LR-300"/>
       </div>
       <div class="weapon-main">
         <div class="weapon-name">LR-300</div>
@@ -708,12 +610,7 @@ footer{
 
     <article class="weapon-row reveal" style="transition-delay:.1s" tabindex="0" aria-label="M249 light machine gun, 40 damage">
       <div class="weapon-icon" aria-hidden="true">
-        <svg width="48" height="22" viewBox="0 0 48 22" fill="none">
-          <rect x="1" y="7" width="40" height="9" rx="2" fill="#1a1200" stroke="#c2440e" stroke-width="1"/>
-          <rect x="39" y="4" width="8" height="15" rx="1" fill="#120d00"/>
-          <rect x="6" y="16" width="6" height="5" rx="1" fill="#0e0900"/>
-          <rect x="1" y="9" width="10" height="5" rx="1" fill="#100b00"/>
-        </svg>
+        <img src="https://files.facepunch.com/paddy/20220705/m39_duo.jpg" alt="M249"/>
       </div>
       <div class="weapon-main">
         <div class="weapon-name">M249</div>
@@ -735,12 +632,7 @@ footer{
 
     <article class="weapon-row reveal" style="transition-delay:.04s" tabindex="0" aria-label="SPAS-12 shotgun, 180 damage">
       <div class="weapon-icon" aria-hidden="true">
-        <svg width="48" height="22" viewBox="0 0 48 22" fill="none">
-          <rect x="2" y="6" width="34" height="10" rx="3" fill="#1a0a00" stroke="rgba(232,93,4,.6)" stroke-width="1.5"/>
-          <rect x="34" y="4" width="12" height="14" rx="2" fill="#120600"/>
-          <rect x="10" y="16" width="14" height="5" rx="1" fill="#0e0400"/>
-          <circle cx="4" cy="11" r="3" fill="none" stroke="rgba(232,93,4,.4)" stroke-width="1"/>
-        </svg>
+        <img src="https://files.facepunch.com/paddy/20250203/rust_minicrossbow_tabletop_02.jpg" alt="SPAS-12"/>
       </div>
       <div class="weapon-main">
         <div class="weapon-name">SPAS-12</div>
@@ -760,12 +652,7 @@ footer{
 
     <article class="weapon-row reveal" style="transition-delay:.07s" tabindex="0" aria-label="Double Barrel shotgun, 210 damage">
       <div class="weapon-icon" aria-hidden="true">
-        <svg width="48" height="22" viewBox="0 0 48 22" fill="none">
-          <rect x="2" y="5" width="32" height="5" rx="2" fill="#1a1000" stroke="rgba(212,197,169,.3)" stroke-width="1"/>
-          <rect x="2" y="12" width="32" height="5" rx="2" fill="#1a1000" stroke="rgba(212,197,169,.3)" stroke-width="1"/>
-          <rect x="32" y="4" width="14" height="14" rx="2" fill="#120c00"/>
-          <rect x="12" y="17" width="10" height="4" rx="1" fill="#0e0800"/>
-        </svg>
+        <img src="https://files.facepunch.com/paddy/20250203/rust_minicrossbow_firstperson_01.jpg" alt="Double Barrel"/>
       </div>
       <div class="weapon-main">
         <div class="weapon-name">DOUBLE BARREL</div>
@@ -787,12 +674,7 @@ footer{
 
     <article class="weapon-row reveal" style="transition-delay:.04s" tabindex="0" aria-label="Bolt Action Rifle, 80 damage">
       <div class="weapon-icon" aria-hidden="true">
-        <svg width="48" height="22" viewBox="0 0 48 22" fill="none">
-          <rect x="1" y="9" width="44" height="6" rx="2" fill="#0a1525" stroke="rgba(139,157,168,.4)" stroke-width="1"/>
-          <rect x="38" y="6" width="8" height="12" rx="1" fill="#060f1a"/>
-          <rect x="16" y="15" width="10" height="6" rx="1" fill="#040b14"/>
-          <rect x="14" y="4" width="14" height="5" rx="1" fill="rgba(139,157,168,.15)" stroke="rgba(139,157,168,.3)" stroke-width="1"/>
-        </svg>
+        <img src="https://files.facepunch.com/paddy/20250128/rust_primupdate_teaser_ballista_01.jpg" alt="Bolt Action Rifle"/>
       </div>
       <div class="weapon-main">
         <div class="weapon-name">BOLT ACTION RIFLE</div>
@@ -812,12 +694,7 @@ footer{
 
     <article class="weapon-row reveal" style="transition-delay:.07s" tabindex="0" aria-label="L96 Rifle, 80 damage">
       <div class="weapon-icon" aria-hidden="true">
-        <svg width="48" height="22" viewBox="0 0 48 22" fill="none">
-          <rect x="1" y="9" width="46" height="5" rx="1" fill="#10001a" stroke="rgba(167,139,250,.4)" stroke-width="1"/>
-          <rect x="40" y="6" width="7" height="11" rx="1" fill="#0a0012"/>
-          <rect x="18" y="14" width="12" height="7" rx="1" fill="#080010"/>
-          <rect x="12" y="3" width="16" height="6" rx="1" fill="rgba(167,139,250,.1)" stroke="rgba(167,139,250,.3)" stroke-width="1"/>
-        </svg>
+        <img src="https://files.facepunch.com/paddy/20250130/medieval_AR_closeup_01.jpg" alt="L96 Rifle"/>
       </div>
       <div class="weapon-main">
         <div class="weapon-name">L96 RIFLE</div>
@@ -839,11 +716,7 @@ footer{
 
     <article class="weapon-row reveal" style="transition-delay:.04s" tabindex="0" aria-label="Salvaged Sword, 45 damage">
       <div class="weapon-icon" aria-hidden="true">
-        <svg width="48" height="22" viewBox="0 0 48 22" fill="none">
-          <rect x="22" y="2" width="4" height="16" rx="1" fill="#2a1a00" stroke="rgba(212,197,169,.4)" stroke-width="1"/>
-          <rect x="14" y="11" width="20" height="3" rx="1" fill="#1e1200"/>
-          <rect x="20" y="18" width="8" height="3" rx="1" fill="#160e00"/>
-        </svg>
+        <img src="https://files.facepunch.com/paddy/20250128/rust_primupdate_teaser_swordight_01.jpg" alt="Salvaged Sword"/>
       </div>
       <div class="weapon-main">
         <div class="weapon-name">SALVAGED SWORD</div>
@@ -862,10 +735,7 @@ footer{
 
     <article class="weapon-row reveal" style="transition-delay:.07s" tabindex="0" aria-label="Hatchet, 30 damage">
       <div class="weapon-icon" aria-hidden="true">
-        <svg width="48" height="22" viewBox="0 0 48 22" fill="none">
-          <rect x="22" y="6" width="4" height="14" rx="1" fill="#1a1000" stroke="rgba(212,197,169,.3)" stroke-width="1"/>
-          <path d="M18 4 L30 4 L28 12 L16 12 Z" fill="#2a1800" stroke="rgba(212,197,169,.4)" stroke-width="1"/>
-        </svg>
+        <img src="https://files.facepunch.com/lewis/1b2911b113/jungleupdate_obsidianknife_01.jpg" alt="Hatchet"/>
       </div>
       <div class="weapon-main">
         <div class="weapon-name">HATCHET</div>
@@ -904,22 +774,8 @@ footer{
       </a>
     </div>
     <div class="banner-visual reveal-right" aria-label="Warlord collection visual">
-      <div style="position:absolute;inset:0;background:radial-gradient(ellipse at 50% 50%,rgba(194,68,14,.3),rgba(8,8,8,.9))"></div>
-      <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center">
-        <svg width="220" height="320" viewBox="0 0 220 320" fill="none" aria-hidden="true">
-          <ellipse cx="110" cy="58" rx="38" ry="40" fill="#1a0800" stroke="rgba(232,93,4,.5)" stroke-width="2"/>
-          <rect x="58" y="96" width="104" height="124" rx="12" fill="#1a0800" stroke="rgba(232,93,4,.35)" stroke-width="1.5"/>
-          <rect x="20" y="100" width="40" height="100" rx="8" fill="#150600" stroke="rgba(232,93,4,.25)" stroke-width="1"/>
-          <rect x="160" y="100" width="40" height="100" rx="8" fill="#150600" stroke="rgba(232,93,4,.25)" stroke-width="1"/>
-          <rect x="64" y="218" width="40" height="90" rx="8" fill="#150600" stroke="rgba(232,93,4,.25)" stroke-width="1"/>
-          <rect x="116" y="218" width="40" height="90" rx="8" fill="#150600" stroke="rgba(232,93,4,.25)" stroke-width="1"/>
-          <rect x="58" y="96" width="104" height="42" rx="12" fill="rgba(232,93,4,.18)"/>
-          <line x1="58" y1="138" x2="162" y2="138" stroke="rgba(232,93,4,.2)" stroke-width="1.5"/>
-          <rect x="78" y="108" width="64" height="20" rx="4" fill="rgba(232,93,4,.1)" stroke="rgba(232,93,4,.2)" stroke-width="1"/>
-          <ellipse cx="110" cy="58" rx="28" ry="16" fill="rgba(232,93,4,.12)"/>
-        </svg>
-      </div>
-      <div style="position:absolute;inset:0;background:linear-gradient(180deg,transparent 40%,rgba(8,8,8,.6) 100%)"></div>
+      <img src="https://files.facepunch.com/paddy/20250128/knightarmour_01.jpg" alt="Knight armor — Warlord collection" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:top center"/>
+      <div style="position:absolute;inset:0;background:linear-gradient(135deg,rgba(194,68,14,.15),transparent),linear-gradient(180deg,transparent 50%,rgba(8,8,8,.7) 100%)"></div>
     </div>
   </div>
 </section>
