@@ -1,0 +1,1034 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>RUST — Weapons, Skins & Player Models</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Epilogue:wght@300;400;500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+tailwind.config = {
+  theme: {
+    extend: {
+      colors: {
+        rust: { 50:'#fef3ec', 100:'#fde0c8', 200:'#fab883', 300:'#f7903e', 400:'#e85d04', 500:'#c2440e', 600:'#9a330a', 700:'#7a2707', 800:'#5c1d05', 900:'#3d1303' },
+        bone: '#D4C5A9',
+        steel: '#8B9DA8',
+        dark: { 900:'#080808', 800:'#0f0f0f', 700:'#161616', 600:'#1e1e1e', 500:'#262626' }
+      },
+      fontFamily: {
+        display: ['Anton','sans-serif'],
+        body: ['Epilogue','sans-serif'],
+        mono: ['Share Tech Mono','monospace']
+      }
+    }
+  }
+}
+</script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --rust:#e85d04;--rust-dark:#c2440e;--rust-glow:rgba(232,93,4,.35);
+  --bg:#080808;--surface:#0f0f0f;--surface2:#161616;
+  --bone:#D4C5A9;--steel:#8B9DA8;
+  --text:#e8e0d0;--text-muted:#7a7065;
+}
+html{background:var(--bg);color:var(--text)}
+body{font-family:'Epilogue',sans-serif;overflow-x:hidden}
+
+/* Scrollbar */
+::-webkit-scrollbar{width:4px}
+::-webkit-scrollbar-track{background:var(--bg)}
+::-webkit-scrollbar-thumb{background:var(--rust-dark);border-radius:2px}
+
+/* Noise overlay */
+body::before{
+  content:'';position:fixed;inset:0;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+  pointer-events:none;z-index:9999;opacity:.4
+}
+
+/* ─── REVEAL ─────────────────────────────── */
+.reveal{opacity:0;transform:translateY(32px);transition:opacity .7s ease,transform .7s ease}
+.reveal.visible{opacity:1;transform:none}
+.reveal-left{opacity:0;transform:translateX(-40px);transition:opacity .7s ease,transform .7s ease}
+.reveal-left.visible{opacity:1;transform:none}
+.reveal-right{opacity:0;transform:translateX(40px);transition:opacity .7s ease,transform .7s ease}
+.reveal-right.visible{opacity:1;transform:none}
+@media(prefers-reduced-motion:reduce){
+  .reveal,.reveal-left,.reveal-right{opacity:1!important;transform:none!important;transition:none!important}
+}
+
+/* ─── NAV ──────────────────────────────── */
+nav{
+  position:fixed;top:20px;left:50%;transform:translateX(-50%);
+  z-index:100;
+  background:rgba(8,8,8,.85);backdrop-filter:blur(20px);
+  border:1px solid rgba(232,93,4,.15);border-radius:100px;
+  padding:12px 28px;display:flex;align-items:center;gap:32px;
+  transition:all .3s ease;
+  white-space:nowrap;
+}
+nav.scrolled{background:rgba(8,8,8,.97);border-color:rgba(232,93,4,.3)}
+.nav-link{font-family:'Epilogue',sans-serif;font-size:13px;font-weight:500;letter-spacing:.08em;text-transform:uppercase;color:var(--steel);text-decoration:none;transition:color .2s}
+.nav-link:hover{color:var(--rust)}
+.nav-logo{font-family:'Anton',sans-serif;font-size:18px;letter-spacing:.1em;color:var(--rust)}
+.nav-cta{background:var(--rust);color:#fff;padding:7px 18px;border-radius:100px;font-size:12px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;text-decoration:none;transition:background .2s,transform .15s}
+.nav-cta:hover{background:var(--rust-dark);transform:scale(1.04)}
+
+/* ─── HERO ─────────────────────────────── */
+#hero{
+  position:relative;min-height:100vh;display:flex;align-items:center;justify-content:center;
+  overflow:hidden;
+}
+.hero-bg{
+  position:absolute;inset:0;
+  background:radial-gradient(ellipse 80% 60% at 50% 40%,rgba(194,68,14,.18) 0%,transparent 70%),
+             radial-gradient(ellipse 40% 30% at 20% 80%,rgba(232,93,4,.08) 0%,transparent 60%),
+             #080808;
+}
+.hero-grid{
+  position:absolute;inset:0;
+  background-image:linear-gradient(rgba(232,93,4,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(232,93,4,.04) 1px,transparent 1px);
+  background-size:60px 60px;
+  mask-image:radial-gradient(ellipse 70% 70% at 50% 50%,black,transparent);
+}
+.hero-particles{position:absolute;inset:0;overflow:hidden}
+.particle{
+  position:absolute;width:2px;height:2px;background:var(--rust);border-radius:50%;
+  opacity:0;animation:float-up var(--dur,8s) var(--delay,0s) infinite ease-in;
+}
+@keyframes float-up{
+  0%{transform:translateY(100vh) translateX(0);opacity:0}
+  10%{opacity:.7}
+  90%{opacity:.3}
+  100%{transform:translateY(-10vh) translateX(var(--drift,20px));opacity:0}
+}
+.hero-content{position:relative;z-index:1;text-align:center;padding:0 20px}
+.hero-eyebrow{
+  display:inline-block;font-family:'Share Tech Mono',monospace;font-size:11px;letter-spacing:.25em;
+  text-transform:uppercase;color:var(--rust);border:1px solid rgba(232,93,4,.3);
+  padding:6px 16px;border-radius:4px;margin-bottom:24px;
+  background:rgba(232,93,4,.06);
+}
+.hero-title{
+  font-family:'Anton',sans-serif;
+  font-size:clamp(72px,14vw,180px);
+  line-height:.9;letter-spacing:-.01em;
+  color:#fff;
+}
+.hero-title span{
+  color:transparent;
+  -webkit-text-stroke:1px rgba(232,93,4,.5);
+}
+.hero-subtitle{
+  font-size:clamp(14px,2vw,18px);color:var(--steel);
+  max-width:480px;margin:24px auto 40px;line-height:1.65;font-weight:300;
+}
+.hero-actions{display:flex;gap:16px;justify-content:center;flex-wrap:wrap}
+.btn-primary{
+  display:inline-flex;align-items:center;gap:8px;
+  background:var(--rust);color:#fff;padding:14px 28px;border-radius:6px;
+  font-weight:600;font-size:14px;letter-spacing:.05em;text-transform:uppercase;
+  text-decoration:none;cursor:pointer;border:none;
+  transition:background .2s,transform .15s,box-shadow .2s;
+  box-shadow:0 0 24px rgba(232,93,4,.3);
+}
+.btn-primary:hover{background:var(--rust-dark);transform:translateY(-2px);box-shadow:0 8px 32px rgba(232,93,4,.45)}
+.btn-secondary{
+  display:inline-flex;align-items:center;gap:8px;
+  background:transparent;color:var(--bone);padding:14px 28px;border-radius:6px;
+  font-weight:500;font-size:14px;letter-spacing:.05em;text-transform:uppercase;
+  text-decoration:none;cursor:pointer;
+  border:1px solid rgba(212,197,169,.2);
+  transition:border-color .2s,color .2s,transform .15s;
+}
+.btn-secondary:hover{border-color:var(--rust);color:var(--rust);transform:translateY(-2px)}
+.hero-stats{
+  position:absolute;bottom:40px;left:50%;transform:translateX(-50%);
+  display:flex;gap:48px;z-index:1;
+}
+.stat{text-align:center}
+.stat-num{font-family:'Anton',sans-serif;font-size:28px;color:var(--rust);letter-spacing:.02em}
+.stat-label{font-size:11px;letter-spacing:.15em;text-transform:uppercase;color:var(--text-muted);margin-top:2px}
+.scroll-hint{
+  position:absolute;bottom:100px;left:50%;transform:translateX(-50%);
+  display:flex;flex-direction:column;align-items:center;gap:8px;
+  color:var(--text-muted);font-size:11px;letter-spacing:.15em;text-transform:uppercase;
+}
+.scroll-line{width:1px;height:40px;background:linear-gradient(var(--rust),transparent);animation:scroll-pulse 2s ease-in-out infinite}
+@keyframes scroll-pulse{0%,100%{opacity:.3}50%{opacity:1}}
+
+/* ─── SECTIONS ─────────────────────────── */
+section{padding:100px 20px}
+.section-header{text-align:center;margin-bottom:64px}
+.section-tag{font-family:'Share Tech Mono',monospace;font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--rust);display:block;margin-bottom:12px}
+.section-title{font-family:'Anton',sans-serif;font-size:clamp(36px,6vw,72px);line-height:1;color:#fff;letter-spacing:.02em}
+.section-title em{color:var(--rust);font-style:normal}
+.section-desc{margin-top:16px;color:var(--steel);font-size:16px;max-width:500px;margin-left:auto;margin-right:auto;line-height:1.6}
+
+/* ─── DIVIDER ─────────────────────────── */
+.divider{height:1px;background:linear-gradient(90deg,transparent,rgba(232,93,4,.3),transparent);margin:0 auto;max-width:600px}
+
+/* ─── PLAYER MODELS ─────────────────────── */
+#models{background:var(--bg)}
+.models-grid{
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
+  gap:24px;max-width:1200px;margin:0 auto;
+}
+.model-card{
+  position:relative;background:var(--surface);border:1px solid rgba(255,255,255,.04);
+  border-radius:12px;overflow:hidden;cursor:pointer;
+  transition:transform .3s ease,border-color .3s,box-shadow .3s;
+}
+.model-card:hover{transform:translateY(-8px);border-color:rgba(232,93,4,.4);box-shadow:0 20px 48px rgba(0,0,0,.6),0 0 0 1px rgba(232,93,4,.15)}
+.model-img{
+  width:100%;aspect-ratio:3/4;position:relative;overflow:hidden;
+  display:flex;align-items:flex-end;justify-content:center;
+}
+.model-silhouette{
+  position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+}
+.model-bg-glow{position:absolute;inset:0}
+.model-info{padding:20px}
+.model-name{font-family:'Anton',sans-serif;font-size:20px;letter-spacing:.05em;color:#fff}
+.model-meta{display:flex;gap:8px;margin-top:8px;flex-wrap:wrap}
+.tag{font-size:11px;padding:3px 10px;border-radius:4px;letter-spacing:.08em;font-weight:500}
+.tag-rare{background:rgba(139,157,168,.12);color:var(--steel);border:1px solid rgba(139,157,168,.2)}
+.tag-epic{background:rgba(124,58,237,.12);color:#a78bfa;border:1px solid rgba(124,58,237,.25)}
+.tag-legendary{background:rgba(232,93,4,.12);color:var(--rust);border:1px solid rgba(232,93,4,.25)}
+.model-bar{height:2px;background:rgba(255,255,255,.06);margin-top:16px;border-radius:1px;overflow:hidden}
+.model-bar-fill{height:100%;border-radius:1px;transition:width 1.2s ease .3s}
+
+/* ─── SKINS ─────────────────────────────── */
+#skins{background:linear-gradient(180deg,var(--bg) 0%,#0c0a08 50%,var(--bg) 100%)}
+.skins-featured{
+  max-width:1200px;margin:0 auto 48px;
+  display:grid;grid-template-columns:1fr 1fr;gap:24px;
+}
+.skin-featured-card{
+  position:relative;border-radius:16px;overflow:hidden;cursor:pointer;
+  border:1px solid rgba(255,255,255,.05);
+  transition:transform .3s,box-shadow .3s,border-color .3s;
+  aspect-ratio:16/9;display:flex;align-items:flex-end;
+}
+.skin-featured-card:hover{transform:scale(1.02);box-shadow:0 24px 64px rgba(0,0,0,.7);border-color:rgba(232,93,4,.3)}
+.skin-featured-bg{position:absolute;inset:0}
+.skin-featured-content{position:relative;z-index:1;padding:28px;width:100%}
+.skin-featured-label{font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--rust);font-family:'Share Tech Mono',monospace}
+.skin-featured-name{font-family:'Anton',sans-serif;font-size:28px;color:#fff;margin-top:4px}
+.skin-featured-desc{font-size:13px;color:rgba(212,197,169,.6);margin-top:6px}
+.skins-grid{
+  display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));
+  gap:16px;max-width:1200px;margin:0 auto;
+}
+.skin-card{
+  background:var(--surface2);border-radius:10px;overflow:hidden;cursor:pointer;
+  border:1px solid rgba(255,255,255,.04);
+  transition:transform .25s,border-color .25s,box-shadow .25s;
+}
+.skin-card:hover{transform:translateY(-4px) scale(1.02);border-color:rgba(232,93,4,.3);box-shadow:0 12px 32px rgba(0,0,0,.5)}
+.skin-img{aspect-ratio:1;position:relative;overflow:hidden}
+.skin-details{padding:12px}
+.skin-name{font-size:13px;font-weight:600;color:var(--bone);letter-spacing:.02em}
+.skin-type{font-size:11px;color:var(--text-muted);margin-top:3px;letter-spacing:.06em}
+
+/* ─── WEAPONS ────────────────────────────── */
+#weapons{background:var(--bg)}
+.weapons-list{max-width:1100px;margin:0 auto;display:flex;flex-direction:column;gap:2px}
+.weapon-row{
+  display:grid;grid-template-columns:80px 1fr auto;align-items:center;gap:24px;
+  padding:20px 28px;border-radius:10px;cursor:pointer;
+  border:1px solid transparent;
+  transition:background .25s,border-color .25s,transform .2s;
+  position:relative;overflow:hidden;
+}
+.weapon-row::before{
+  content:'';position:absolute;left:0;top:0;bottom:0;width:2px;
+  background:var(--rust);transform:scaleY(0);transform-origin:bottom;
+  transition:transform .3s ease;
+}
+.weapon-row:hover{background:var(--surface);border-color:rgba(232,93,4,.12);transform:translateX(4px)}
+.weapon-row:hover::before{transform:scaleY(1)}
+.weapon-icon{
+  width:72px;height:52px;display:flex;align-items:center;justify-content:center;
+  background:var(--surface2);border-radius:8px;border:1px solid rgba(255,255,255,.05);
+  flex-shrink:0;
+}
+.weapon-main{flex:1;min-width:0}
+.weapon-name{font-family:'Anton',sans-serif;font-size:20px;color:#fff;letter-spacing:.04em}
+.weapon-category{font-size:12px;color:var(--text-muted);margin-top:2px;letter-spacing:.1em;text-transform:uppercase}
+.weapon-stats{display:flex;gap:6px;margin-top:10px;flex-wrap:wrap}
+.stat-pill{
+  font-size:11px;padding:3px 10px;border-radius:20px;
+  background:rgba(255,255,255,.04);color:var(--steel);border:1px solid rgba(255,255,255,.06);
+  font-family:'Share Tech Mono',monospace;
+}
+.weapon-damage{
+  display:flex;flex-direction:column;align-items:flex-end;flex-shrink:0;
+}
+.damage-num{font-family:'Anton',sans-serif;font-size:32px;color:var(--rust);line-height:1}
+.damage-label{font-size:10px;color:var(--text-muted);letter-spacing:.12em;text-transform:uppercase;margin-top:2px}
+.weapons-category-header{
+  font-family:'Share Tech Mono',monospace;font-size:11px;letter-spacing:.2em;text-transform:uppercase;
+  color:var(--text-muted);padding:28px 28px 8px;border-bottom:1px solid rgba(255,255,255,.04);
+  margin-bottom:4px;
+}
+
+/* ─── FEATURED BANNER ──────────────────── */
+#featured{background:var(--surface)}
+.banner-inner{
+  max-width:1100px;margin:0 auto;
+  display:grid;grid-template-columns:1fr 1fr;gap:64px;align-items:center;
+}
+.banner-visual{
+  position:relative;aspect-ratio:4/3;border-radius:16px;overflow:hidden;
+  border:1px solid rgba(232,93,4,.15);
+}
+.banner-text{}
+.banner-label{font-family:'Share Tech Mono',monospace;font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--rust);margin-bottom:16px;display:block}
+.banner-title{font-family:'Anton',sans-serif;font-size:clamp(32px,4vw,52px);color:#fff;line-height:1.05;margin-bottom:20px}
+.banner-body{color:var(--steel);font-size:15px;line-height:1.7;margin-bottom:32px}
+.feature-list{display:flex;flex-direction:column;gap:12px;margin-bottom:36px}
+.feature-item{display:flex;align-items:center;gap:12px;font-size:14px;color:var(--bone)}
+.feature-dot{width:6px;height:6px;background:var(--rust);border-radius:50%;flex-shrink:0}
+
+/* ─── FOOTER ─────────────────────────── */
+footer{
+  background:var(--surface);border-top:1px solid rgba(255,255,255,.04);
+  padding:60px 20px 32px;text-align:center;
+}
+.footer-logo{font-family:'Anton',sans-serif;font-size:36px;color:var(--rust);letter-spacing:.1em;margin-bottom:16px}
+.footer-tagline{color:var(--text-muted);font-size:13px;letter-spacing:.1em;text-transform:uppercase;margin-bottom:36px}
+.footer-links{display:flex;gap:32px;justify-content:center;flex-wrap:wrap;margin-bottom:36px}
+.footer-link{color:var(--steel);text-decoration:none;font-size:13px;letter-spacing:.05em;transition:color .2s}
+.footer-link:hover{color:var(--rust)}
+.footer-bottom{border-top:1px solid rgba(255,255,255,.04);padding-top:28px;color:var(--text-muted);font-size:12px;letter-spacing:.05em}
+
+/* ─── RESPONSIVE ─────────────────────── */
+@media(max-width:768px){
+  nav{padding:10px 18px;gap:20px}
+  .nav-link{display:none}
+  .hero-stats{gap:28px;bottom:28px}
+  .skins-featured{grid-template-columns:1fr}
+  .banner-inner{grid-template-columns:1fr;gap:36px}
+  .banner-visual{order:-1}
+  .weapon-row{grid-template-columns:60px 1fr auto;gap:16px;padding:16px}
+  .weapons-list{gap:1px}
+}
+@media(max-width:480px){
+  .models-grid{grid-template-columns:1fr 1fr}
+  .hero-stats{flex-wrap:wrap;gap:20px;justify-content:center}
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav id="navbar" role="navigation" aria-label="Main navigation">
+  <span class="nav-logo">RUST</span>
+  <a href="#models" class="nav-link">Models</a>
+  <a href="#skins" class="nav-link">Skins</a>
+  <a href="#weapons" class="nav-link">Weapons</a>
+  <a href="#weapons" class="nav-cta">Explore</a>
+</nav>
+
+<!-- HERO -->
+<section id="hero" aria-label="Hero">
+  <div class="hero-bg"></div>
+  <div class="hero-grid" aria-hidden="true"></div>
+  <div class="hero-particles" aria-hidden="true" id="particles"></div>
+
+  <div class="hero-content">
+    <div class="hero-eyebrow">// Season 2026 — Survivor's Arsenal</div>
+    <h1 class="hero-title">
+      SURVIVE<br/><span>OR</span><br/>DOMINATE
+    </h1>
+    <p class="hero-subtitle">Explore every player model, skin, and weapon crafted for the world's most brutal survival experience.</p>
+    <div class="hero-actions">
+      <a href="#models" class="btn-primary">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        Player Models
+      </a>
+      <a href="#weapons" class="btn-secondary">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+        View Weapons
+      </a>
+    </div>
+  </div>
+
+  <div class="scroll-hint" aria-hidden="true">
+    <div class="scroll-line"></div>
+    <span>Scroll</span>
+  </div>
+
+  <div class="hero-stats" aria-label="Site statistics">
+    <div class="stat"><div class="stat-num" data-count="247">0</div><div class="stat-label">Skins</div></div>
+    <div class="stat"><div class="stat-num" data-count="64">0</div><div class="stat-label">Weapons</div></div>
+    <div class="stat"><div class="stat-num" data-count="38">0</div><div class="stat-label">Models</div></div>
+    <div class="stat"><div class="stat-num" data-count="12">0</div><div class="stat-label">Categories</div></div>
+  </div>
+</section>
+
+<!-- PLAYER MODELS -->
+<section id="models" aria-label="Player models">
+  <div class="section-header reveal">
+    <span class="section-tag">// 01 — Character Library</span>
+    <h2 class="section-title">PLAYER <em>MODELS</em></h2>
+    <p class="section-desc">Every survivor archetype — from the freshly spawned to the fully geared veteran.</p>
+  </div>
+
+  <div class="models-grid">
+
+    <article class="model-card reveal" style="transition-delay:.05s" tabindex="0" aria-label="Bandit skin — Epic rarity">
+      <div class="model-img">
+        <div class="model-bg-glow" style="background:radial-gradient(ellipse 100% 80% at 50% 100%,rgba(124,58,237,.25),transparent)"></div>
+        <div class="model-silhouette">
+          <svg width="140" height="240" viewBox="0 0 140 280" fill="none" aria-hidden="true">
+            <ellipse cx="70" cy="40" rx="26" ry="28" fill="#1a1a1a" stroke="rgba(167,139,250,.3)" stroke-width="1"/>
+            <rect x="36" y="66" width="68" height="90" rx="8" fill="#1a1a1a" stroke="rgba(167,139,250,.2)" stroke-width="1"/>
+            <rect x="12" y="70" width="26" height="72" rx="6" fill="#161616" stroke="rgba(167,139,250,.15)" stroke-width="1"/>
+            <rect x="102" y="70" width="26" height="72" rx="6" fill="#161616" stroke="rgba(167,139,250,.15)" stroke-width="1"/>
+            <rect x="42" y="154" width="26" height="94" rx="6" fill="#161616" stroke="rgba(167,139,250,.15)" stroke-width="1"/>
+            <rect x="72" y="154" width="26" height="94" rx="6" fill="#161616" stroke="rgba(167,139,250,.15)" stroke-width="1"/>
+            <rect x="36" y="66" width="68" height="28" rx="8" fill="rgba(124,58,237,.15)"/>
+            <line x1="36" y1="95" x2="104" y2="95" stroke="rgba(167,139,250,.1)" stroke-width="1"/>
+          </svg>
+        </div>
+      </div>
+      <div class="model-info">
+        <div class="model-name">BANDIT</div>
+        <div class="model-meta">
+          <span class="tag tag-epic">Epic</span>
+          <span class="tag tag-rare">Outlaw</span>
+        </div>
+        <div class="model-bar"><div class="model-bar-fill" style="width:82%;background:linear-gradient(90deg,#7c3aed,#a78bfa)"></div></div>
+      </div>
+    </article>
+
+    <article class="model-card reveal" style="transition-delay:.1s" tabindex="0" aria-label="Nomad skin — Legendary rarity">
+      <div class="model-img">
+        <div class="model-bg-glow" style="background:radial-gradient(ellipse 100% 80% at 50% 100%,rgba(232,93,4,.25),transparent)"></div>
+        <div class="model-silhouette">
+          <svg width="140" height="240" viewBox="0 0 140 280" fill="none" aria-hidden="true">
+            <ellipse cx="70" cy="38" rx="28" ry="30" fill="#1a1a1a" stroke="rgba(232,93,4,.4)" stroke-width="1.5"/>
+            <rect x="32" y="66" width="76" height="96" rx="10" fill="#1a1a1a" stroke="rgba(232,93,4,.25)" stroke-width="1"/>
+            <rect x="8" y="68" width="28" height="76" rx="7" fill="#161616" stroke="rgba(232,93,4,.2)" stroke-width="1"/>
+            <rect x="104" y="68" width="28" height="76" rx="7" fill="#161616" stroke="rgba(232,93,4,.2)" stroke-width="1"/>
+            <rect x="38" y="160" width="28" height="98" rx="7" fill="#161616" stroke="rgba(232,93,4,.2)" stroke-width="1"/>
+            <rect x="74" y="160" width="28" height="98" rx="7" fill="#161616" stroke="rgba(232,93,4,.2)" stroke-width="1"/>
+            <rect x="32" y="66" width="76" height="32" rx="10" fill="rgba(232,93,4,.15)"/>
+            <ellipse cx="70" cy="38" rx="20" ry="10" fill="rgba(232,93,4,.1)"/>
+          </svg>
+        </div>
+      </div>
+      <div class="model-info">
+        <div class="model-name">NOMAD</div>
+        <div class="model-meta">
+          <span class="tag tag-legendary">Legendary</span>
+          <span class="tag tag-rare">Wasteland</span>
+        </div>
+        <div class="model-bar"><div class="model-bar-fill" style="width:96%;background:linear-gradient(90deg,#c2440e,#e85d04)"></div></div>
+      </div>
+    </article>
+
+    <article class="model-card reveal" style="transition-delay:.15s" tabindex="0" aria-label="Scavenger skin — Rare rarity">
+      <div class="model-img">
+        <div class="model-bg-glow" style="background:radial-gradient(ellipse 100% 80% at 50% 100%,rgba(74,124,89,.25),transparent)"></div>
+        <div class="model-silhouette">
+          <svg width="140" height="240" viewBox="0 0 140 280" fill="none" aria-hidden="true">
+            <ellipse cx="70" cy="40" rx="24" ry="26" fill="#1a1a1a" stroke="rgba(74,124,89,.35)" stroke-width="1"/>
+            <rect x="38" y="64" width="64" height="86" rx="8" fill="#1a1a1a" stroke="rgba(74,124,89,.2)" stroke-width="1"/>
+            <rect x="14" y="68" width="24" height="68" rx="6" fill="#161616" stroke="rgba(74,124,89,.18)" stroke-width="1"/>
+            <rect x="102" y="68" width="24" height="68" rx="6" fill="#161616" stroke="rgba(74,124,89,.18)" stroke-width="1"/>
+            <rect x="44" y="148" width="24" height="90" rx="6" fill="#161616" stroke="rgba(74,124,89,.18)" stroke-width="1"/>
+            <rect x="72" y="148" width="24" height="90" rx="6" fill="#161616" stroke="rgba(74,124,89,.18)" stroke-width="1"/>
+            <rect x="38" y="64" width="64" height="24" rx="8" fill="rgba(74,124,89,.15)"/>
+          </svg>
+        </div>
+      </div>
+      <div class="model-info">
+        <div class="model-name">SCAVENGER</div>
+        <div class="model-meta">
+          <span class="tag tag-rare">Rare</span>
+          <span class="tag tag-rare">Survivor</span>
+        </div>
+        <div class="model-bar"><div class="model-bar-fill" style="width:65%;background:linear-gradient(90deg,#2d6a4f,#4a7c59)"></div></div>
+      </div>
+    </article>
+
+    <article class="model-card reveal" style="transition-delay:.2s" tabindex="0" aria-label="Warlord skin — Legendary rarity">
+      <div class="model-img">
+        <div class="model-bg-glow" style="background:radial-gradient(ellipse 100% 80% at 50% 100%,rgba(194,68,14,.3),transparent)"></div>
+        <div class="model-silhouette">
+          <svg width="140" height="240" viewBox="0 0 140 280" fill="none" aria-hidden="true">
+            <ellipse cx="70" cy="36" rx="30" ry="32" fill="#1a1a1a" stroke="rgba(194,68,14,.5)" stroke-width="2"/>
+            <rect x="28" y="66" width="84" height="104" rx="10" fill="#1a1a1a" stroke="rgba(194,68,14,.3)" stroke-width="1.5"/>
+            <rect x="4" y="64" width="28" height="82" rx="7" fill="#161616" stroke="rgba(194,68,14,.25)" stroke-width="1"/>
+            <rect x="108" y="64" width="28" height="82" rx="7" fill="#161616" stroke="rgba(194,68,14,.25)" stroke-width="1"/>
+            <rect x="34" y="168" width="30" height="100" rx="7" fill="#161616" stroke="rgba(194,68,14,.25)" stroke-width="1"/>
+            <rect x="76" y="168" width="30" height="100" rx="7" fill="#161616" stroke="rgba(194,68,14,.25)" stroke-width="1"/>
+            <rect x="28" y="66" width="84" height="38" rx="10" fill="rgba(194,68,14,.2)"/>
+            <line x1="28" y1="105" x2="112" y2="105" stroke="rgba(194,68,14,.15)" stroke-width="1.5"/>
+            <rect x="48" y="80" width="44" height="16" rx="4" fill="rgba(194,68,14,.1)"/>
+          </svg>
+        </div>
+      </div>
+      <div class="model-info">
+        <div class="model-name">WARLORD</div>
+        <div class="model-meta">
+          <span class="tag tag-legendary">Legendary</span>
+          <span class="tag tag-epic">Combat</span>
+        </div>
+        <div class="model-bar"><div class="model-bar-fill" style="width:100%;background:linear-gradient(90deg,#9a330a,#e85d04,#f7903e)"></div></div>
+      </div>
+    </article>
+
+  </div>
+</section>
+
+<div class="divider reveal"></div>
+
+<!-- SKINS -->
+<section id="skins" aria-label="Skins">
+  <div class="section-header reveal">
+    <span class="section-tag">// 02 — Cosmetic Library</span>
+    <h2 class="section-title">ITEM <em>SKINS</em></h2>
+    <p class="section-desc">Hundreds of cosmetics spanning weapons, gear, and building materials.</p>
+  </div>
+
+  <div class="skins-featured">
+    <article class="skin-featured-card reveal-left" tabindex="0" aria-label="Dragonfire AK-47 — Featured Legendary skin">
+      <div class="skin-featured-bg" style="background:linear-gradient(135deg,#1a0a00 0%,#3d1303 30%,#7a2707 60%,#c2440e 100%)">
+        <div style="position:absolute;inset:0;background:url('data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%22400%22 height=%22225%22><defs><radialGradient id=%22g%22 cx=%2270%25%22 cy=%2250%25%22><stop offset=%220%25%22 stop-color=%22%23e85d04%22 stop-opacity=%220.4%22/><stop offset=%22100%25%22 stop-color=%22transparent%22/></radialGradient></defs><rect width=%22400%22 height=%22225%22 fill=%22url(%23g)%22/></svg>');opacity:.8"></div>
+        <!-- Weapon SVG -->
+        <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center">
+          <svg width="280" height="100" viewBox="0 0 280 100" fill="none" aria-hidden="true">
+            <rect x="20" y="38" width="200" height="22" rx="4" fill="#2a0e00" stroke="rgba(232,93,4,.6)" stroke-width="1.5"/>
+            <rect x="20" y="42" width="200" height="14" rx="3" fill="url(#dr1)"/>
+            <defs><linearGradient id="dr1" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#7a2707"/><stop offset="100%" stop-color="#e85d04"/></linearGradient></defs>
+            <rect x="220" y="34" width="50" height="30" rx="3" fill="#1a0800" stroke="rgba(232,93,4,.4)" stroke-width="1"/>
+            <rect x="100" y="60" width="30" height="28" rx="4" fill="#1a0800" stroke="rgba(232,93,4,.3)" stroke-width="1"/>
+            <rect x="60" y="55" width="16" height="40" rx="3" fill="#150600" stroke="rgba(232,93,4,.25)" stroke-width="1"/>
+            <rect x="18" y="40" width="6" height="18" rx="2" fill="#0d0400"/>
+            <circle cx="8" cy="49" r="5" fill="none" stroke="rgba(232,93,4,.5)" stroke-width="1.5"/>
+          </svg>
+        </div>
+      </div>
+      <div class="skin-featured-content">
+        <div style="position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,.9) 0%,rgba(0,0,0,.3) 50%,transparent 100%)"></div>
+        <div style="position:relative">
+          <div class="skin-featured-label">Featured — Legendary</div>
+          <div class="skin-featured-name">DRAGONFIRE AK-47</div>
+          <div class="skin-featured-desc">Hand-etched flame motifs on military-grade steel</div>
+        </div>
+      </div>
+    </article>
+
+    <article class="skin-featured-card reveal-right" tabindex="0" aria-label="Void Operative — Featured Epic armor skin">
+      <div class="skin-featured-bg" style="background:linear-gradient(135deg,#060010 0%,#150030 30%,#2d1060 60%,#5b21b6 100%)">
+        <div style="position:absolute;inset:0;background:radial-gradient(ellipse at 70% 50%,rgba(124,58,237,.5),transparent 70%)"></div>
+      </div>
+      <div class="skin-featured-content">
+        <div style="position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,.9) 0%,rgba(0,0,0,.3) 50%,transparent 100%)"></div>
+        <div style="position:relative">
+          <div class="skin-featured-label">Featured — Epic</div>
+          <div class="skin-featured-name">VOID OPERATIVE</div>
+          <div class="skin-featured-desc">Full set — armor, gloves, boots & helmet</div>
+        </div>
+      </div>
+    </article>
+  </div>
+
+  <div class="skins-grid">
+    <!-- skin cards -->
+    <article class="skin-card reveal" style="transition-delay:.05s" tabindex="0">
+      <div class="skin-img" style="background:linear-gradient(135deg,#1a0000,#5c1d05)">
+        <div style="height:100%;display:flex;align-items:center;justify-content:center">
+          <svg width="80" height="40" viewBox="0 0 80 40" fill="none" aria-hidden="true">
+            <rect x="4" y="14" width="56" height="12" rx="3" fill="#7a2707" stroke="rgba(232,93,4,.5)" stroke-width="1"/>
+            <rect x="60" y="10" width="16" height="20" rx="2" fill="#5c1d05" stroke="rgba(232,93,4,.4)" stroke-width="1"/>
+            <rect x="24" y="26" width="10" height="12" rx="2" fill="#3d1303"/>
+          </svg>
+        </div>
+      </div>
+      <div class="skin-details">
+        <div class="skin-name">Inferno LR-300</div>
+        <div class="skin-type">Assault Rifle</div>
+      </div>
+    </article>
+
+    <article class="skin-card reveal" style="transition-delay:.08s" tabindex="0">
+      <div class="skin-img" style="background:linear-gradient(135deg,#001a10,#0d3320)">
+        <div style="height:100%;display:flex;align-items:center;justify-content:center">
+          <svg width="70" height="50" viewBox="0 0 70 50" fill="none" aria-hidden="true">
+            <rect x="10" y="18" width="48" height="14" rx="3" fill="#0d3320" stroke="rgba(74,124,89,.5)" stroke-width="1"/>
+            <rect x="55" y="14" width="12" height="22" rx="2" fill="#0a2a18" stroke="rgba(74,124,89,.4)" stroke-width="1"/>
+            <rect x="18" y="32" width="10" height="14" rx="2" fill="#071a10"/>
+          </svg>
+        </div>
+      </div>
+      <div class="skin-details">
+        <div class="skin-name">Forest Ghost</div>
+        <div class="skin-type">SMG</div>
+      </div>
+    </article>
+
+    <article class="skin-card reveal" style="transition-delay:.11s" tabindex="0">
+      <div class="skin-img" style="background:linear-gradient(135deg,#0a0a20,#1e1e4a)">
+        <div style="height:100%;display:flex;align-items:center;justify-content:center">
+          <svg width="60" height="70" viewBox="0 0 60 70" fill="none" aria-hidden="true">
+            <rect x="22" y="5" width="16" height="48" rx="4" fill="#1e1e4a" stroke="rgba(139,157,168,.4)" stroke-width="1"/>
+            <rect x="14" y="40" width="32" height="14" rx="4" fill="#16163a" stroke="rgba(139,157,168,.3)" stroke-width="1"/>
+            <rect x="26" y="53" width="8" height="14" rx="2" fill="#10102a"/>
+          </svg>
+        </div>
+      </div>
+      <div class="skin-details">
+        <div class="skin-name">Nightwatch M92</div>
+        <div class="skin-type">Pistol</div>
+      </div>
+    </article>
+
+    <article class="skin-card reveal" style="transition-delay:.14s" tabindex="0">
+      <div class="skin-img" style="background:linear-gradient(135deg,#1a1000,#4a2e00)">
+        <div style="height:100%;display:flex;align-items:center;justify-content:center">
+          <svg width="80" height="45" viewBox="0 0 80 45" fill="none" aria-hidden="true">
+            <rect x="3" y="16" width="62" height="14" rx="2" fill="#4a2e00" stroke="rgba(212,197,169,.35)" stroke-width="1"/>
+            <rect x="62" y="12" width="14" height="22" rx="2" fill="#3a2200"/>
+            <rect x="20" y="30" width="14" height="12" rx="2" fill="#2a1800"/>
+            <rect x="3" y="18" width="12" height="10" rx="1" fill="#2a1800"/>
+          </svg>
+        </div>
+      </div>
+      <div class="skin-details">
+        <div class="skin-name">Desert Hawk</div>
+        <div class="skin-type">Shotgun</div>
+      </div>
+    </article>
+
+    <article class="skin-card reveal" style="transition-delay:.17s" tabindex="0">
+      <div class="skin-img" style="background:linear-gradient(135deg,#001015,#003040)">
+        <div style="height:100%;display:flex;align-items:center;justify-content:center">
+          <svg width="50" height="70" viewBox="0 0 50 70" fill="none" aria-hidden="true">
+            <rect x="18" y="4" width="14" height="50" rx="3" fill="#003040" stroke="rgba(0,200,255,.3)" stroke-width="1"/>
+            <rect x="10" y="44" width="30" height="12" rx="3" fill="#002535"/>
+            <rect x="21" y="56" width="8" height="12" rx="2" fill="#001a25"/>
+          </svg>
+        </div>
+      </div>
+      <div class="skin-details">
+        <div class="skin-name">Arctic Blaze</div>
+        <div class="skin-type">Sniper</div>
+      </div>
+    </article>
+
+    <article class="skin-card reveal" style="transition-delay:.2s" tabindex="0">
+      <div class="skin-img" style="background:linear-gradient(135deg,#200010,#500030)">
+        <div style="height:100%;display:flex;align-items:center;justify-content:center">
+          <svg width="64" height="54" viewBox="0 0 64 54" fill="none" aria-hidden="true">
+            <rect x="5" y="18" width="52" height="18" rx="4" fill="#500030" stroke="rgba(244,63,94,.4)" stroke-width="1"/>
+            <rect x="54" y="14" width="6" height="26" rx="2" fill="#3a0020"/>
+            <rect x="18" y="36" width="16" height="14" rx="3" fill="#2a0018"/>
+          </svg>
+        </div>
+      </div>
+      <div class="skin-details">
+        <div class="skin-name">Bloodrush</div>
+        <div class="skin-type">Assault Rifle</div>
+      </div>
+    </article>
+  </div>
+</section>
+
+<div class="divider reveal"></div>
+
+<!-- WEAPONS -->
+<section id="weapons" aria-label="Weapons database">
+  <div class="section-header reveal">
+    <span class="section-tag">// 03 — Armory</span>
+    <h2 class="section-title">WEAPON <em>ARSENAL</em></h2>
+    <p class="section-desc">Every craftable and loot-found weapon, with full stats and category breakdown.</p>
+  </div>
+
+  <div class="weapons-list">
+
+    <div class="weapons-category-header reveal">Rifles & Assault</div>
+
+    <article class="weapon-row reveal" style="transition-delay:.04s" tabindex="0" aria-label="AK-47 assault rifle, 80 damage">
+      <div class="weapon-icon" aria-hidden="true">
+        <svg width="48" height="22" viewBox="0 0 48 22" fill="none">
+          <rect x="2" y="7" width="36" height="8" rx="2" fill="#2a1a0a" stroke="#c2440e" stroke-width="1"/>
+          <rect x="36" y="4" width="10" height="14" rx="1" fill="#1a0e04" stroke="rgba(194,68,14,.5)" stroke-width="1"/>
+          <rect x="12" y="15" width="8" height="6" rx="1" fill="#120a02"/>
+          <rect x="2" y="8" width="4" height="6" rx="1" fill="#100800"/>
+        </svg>
+      </div>
+      <div class="weapon-main">
+        <div class="weapon-name">AK-47</div>
+        <div class="weapon-category">Assault Rifle</div>
+        <div class="weapon-stats">
+          <span class="stat-pill">30 rnd</span>
+          <span class="stat-pill">450 rpm</span>
+          <span class="stat-pill">7.62mm</span>
+          <span class="stat-pill">High Recoil</span>
+        </div>
+      </div>
+      <div class="weapon-damage" aria-label="80 damage per shot">
+        <div class="damage-num">80</div>
+        <div class="damage-label">dmg/shot</div>
+      </div>
+    </article>
+
+    <article class="weapon-row reveal" style="transition-delay:.07s" tabindex="0" aria-label="LR-300 assault rifle, 40 damage">
+      <div class="weapon-icon" aria-hidden="true">
+        <svg width="48" height="22" viewBox="0 0 48 22" fill="none">
+          <rect x="2" y="7" width="38" height="8" rx="2" fill="#0e1a0a" stroke="#4a7c59" stroke-width="1"/>
+          <rect x="38" y="4" width="8" height="14" rx="1" fill="#0a120a" stroke="rgba(74,124,89,.5)" stroke-width="1"/>
+          <rect x="14" y="15" width="10" height="6" rx="1" fill="#080e06"/>
+        </svg>
+      </div>
+      <div class="weapon-main">
+        <div class="weapon-name">LR-300</div>
+        <div class="weapon-category">Assault Rifle</div>
+        <div class="weapon-stats">
+          <span class="stat-pill">30 rnd</span>
+          <span class="stat-pill">500 rpm</span>
+          <span class="stat-pill">5.56mm</span>
+          <span class="stat-pill">Low Recoil</span>
+        </div>
+      </div>
+      <div class="weapon-damage" aria-label="40 damage per shot">
+        <div class="damage-num">40</div>
+        <div class="damage-label">dmg/shot</div>
+      </div>
+    </article>
+
+    <article class="weapon-row reveal" style="transition-delay:.1s" tabindex="0" aria-label="M249 light machine gun, 40 damage">
+      <div class="weapon-icon" aria-hidden="true">
+        <svg width="48" height="22" viewBox="0 0 48 22" fill="none">
+          <rect x="1" y="7" width="40" height="9" rx="2" fill="#1a1200" stroke="#c2440e" stroke-width="1"/>
+          <rect x="39" y="4" width="8" height="15" rx="1" fill="#120d00"/>
+          <rect x="6" y="16" width="6" height="5" rx="1" fill="#0e0900"/>
+          <rect x="1" y="9" width="10" height="5" rx="1" fill="#100b00"/>
+        </svg>
+      </div>
+      <div class="weapon-main">
+        <div class="weapon-name">M249</div>
+        <div class="weapon-category">Light Machine Gun</div>
+        <div class="weapon-stats">
+          <span class="stat-pill">100 rnd</span>
+          <span class="stat-pill">500 rpm</span>
+          <span class="stat-pill">5.56mm</span>
+          <span class="stat-pill">Very Heavy</span>
+        </div>
+      </div>
+      <div class="weapon-damage" aria-label="40 damage per shot">
+        <div class="damage-num">40</div>
+        <div class="damage-label">dmg/shot</div>
+      </div>
+    </article>
+
+    <div class="weapons-category-header reveal">Shotguns & CQB</div>
+
+    <article class="weapon-row reveal" style="transition-delay:.04s" tabindex="0" aria-label="SPAS-12 shotgun, 180 damage">
+      <div class="weapon-icon" aria-hidden="true">
+        <svg width="48" height="22" viewBox="0 0 48 22" fill="none">
+          <rect x="2" y="6" width="34" height="10" rx="3" fill="#1a0a00" stroke="rgba(232,93,4,.6)" stroke-width="1.5"/>
+          <rect x="34" y="4" width="12" height="14" rx="2" fill="#120600"/>
+          <rect x="10" y="16" width="14" height="5" rx="1" fill="#0e0400"/>
+          <circle cx="4" cy="11" r="3" fill="none" stroke="rgba(232,93,4,.4)" stroke-width="1"/>
+        </svg>
+      </div>
+      <div class="weapon-main">
+        <div class="weapon-name">SPAS-12</div>
+        <div class="weapon-category">Shotgun</div>
+        <div class="weapon-stats">
+          <span class="stat-pill">6 rnd</span>
+          <span class="stat-pill">12ga</span>
+          <span class="stat-pill">Buckshot</span>
+          <span class="stat-pill">CQB</span>
+        </div>
+      </div>
+      <div class="weapon-damage" aria-label="180 damage per shot">
+        <div class="damage-num">180</div>
+        <div class="damage-label">dmg/shot</div>
+      </div>
+    </article>
+
+    <article class="weapon-row reveal" style="transition-delay:.07s" tabindex="0" aria-label="Double Barrel shotgun, 210 damage">
+      <div class="weapon-icon" aria-hidden="true">
+        <svg width="48" height="22" viewBox="0 0 48 22" fill="none">
+          <rect x="2" y="5" width="32" height="5" rx="2" fill="#1a1000" stroke="rgba(212,197,169,.3)" stroke-width="1"/>
+          <rect x="2" y="12" width="32" height="5" rx="2" fill="#1a1000" stroke="rgba(212,197,169,.3)" stroke-width="1"/>
+          <rect x="32" y="4" width="14" height="14" rx="2" fill="#120c00"/>
+          <rect x="12" y="17" width="10" height="4" rx="1" fill="#0e0800"/>
+        </svg>
+      </div>
+      <div class="weapon-main">
+        <div class="weapon-name">DOUBLE BARREL</div>
+        <div class="weapon-category">Shotgun</div>
+        <div class="weapon-stats">
+          <span class="stat-pill">2 rnd</span>
+          <span class="stat-pill">12ga</span>
+          <span class="stat-pill">Craftable</span>
+          <span class="stat-pill">Lethal</span>
+        </div>
+      </div>
+      <div class="weapon-damage" aria-label="210 damage per shot">
+        <div class="damage-num">210</div>
+        <div class="damage-label">dmg/shot</div>
+      </div>
+    </article>
+
+    <div class="weapons-category-header reveal">Snipers & Precision</div>
+
+    <article class="weapon-row reveal" style="transition-delay:.04s" tabindex="0" aria-label="Bolt Action Rifle, 80 damage">
+      <div class="weapon-icon" aria-hidden="true">
+        <svg width="48" height="22" viewBox="0 0 48 22" fill="none">
+          <rect x="1" y="9" width="44" height="6" rx="2" fill="#0a1525" stroke="rgba(139,157,168,.4)" stroke-width="1"/>
+          <rect x="38" y="6" width="8" height="12" rx="1" fill="#060f1a"/>
+          <rect x="16" y="15" width="10" height="6" rx="1" fill="#040b14"/>
+          <rect x="14" y="4" width="14" height="5" rx="1" fill="rgba(139,157,168,.15)" stroke="rgba(139,157,168,.3)" stroke-width="1"/>
+        </svg>
+      </div>
+      <div class="weapon-main">
+        <div class="weapon-name">BOLT ACTION RIFLE</div>
+        <div class="weapon-category">Sniper Rifle</div>
+        <div class="weapon-stats">
+          <span class="stat-pill">4 rnd</span>
+          <span class="stat-pill">Bolt-action</span>
+          <span class="stat-pill">Craftable</span>
+          <span class="stat-pill">Long Range</span>
+        </div>
+      </div>
+      <div class="weapon-damage" aria-label="80 damage per shot">
+        <div class="damage-num">80</div>
+        <div class="damage-label">dmg/shot</div>
+      </div>
+    </article>
+
+    <article class="weapon-row reveal" style="transition-delay:.07s" tabindex="0" aria-label="L96 Rifle, 80 damage">
+      <div class="weapon-icon" aria-hidden="true">
+        <svg width="48" height="22" viewBox="0 0 48 22" fill="none">
+          <rect x="1" y="9" width="46" height="5" rx="1" fill="#10001a" stroke="rgba(167,139,250,.4)" stroke-width="1"/>
+          <rect x="40" y="6" width="7" height="11" rx="1" fill="#0a0012"/>
+          <rect x="18" y="14" width="12" height="7" rx="1" fill="#080010"/>
+          <rect x="12" y="3" width="16" height="6" rx="1" fill="rgba(167,139,250,.1)" stroke="rgba(167,139,250,.3)" stroke-width="1"/>
+        </svg>
+      </div>
+      <div class="weapon-main">
+        <div class="weapon-name">L96 RIFLE</div>
+        <div class="weapon-category">Sniper Rifle</div>
+        <div class="weapon-stats">
+          <span class="stat-pill">5 rnd</span>
+          <span class="stat-pill">High-end</span>
+          <span class="stat-pill">Rare Loot</span>
+          <span class="stat-pill">Max Range</span>
+        </div>
+      </div>
+      <div class="weapon-damage" aria-label="80 damage per shot">
+        <div class="damage-num">80</div>
+        <div class="damage-label">dmg/shot</div>
+      </div>
+    </article>
+
+    <div class="weapons-category-header reveal">Melee & Primitive</div>
+
+    <article class="weapon-row reveal" style="transition-delay:.04s" tabindex="0" aria-label="Salvaged Sword, 45 damage">
+      <div class="weapon-icon" aria-hidden="true">
+        <svg width="48" height="22" viewBox="0 0 48 22" fill="none">
+          <rect x="22" y="2" width="4" height="16" rx="1" fill="#2a1a00" stroke="rgba(212,197,169,.4)" stroke-width="1"/>
+          <rect x="14" y="11" width="20" height="3" rx="1" fill="#1e1200"/>
+          <rect x="20" y="18" width="8" height="3" rx="1" fill="#160e00"/>
+        </svg>
+      </div>
+      <div class="weapon-main">
+        <div class="weapon-name">SALVAGED SWORD</div>
+        <div class="weapon-category">Melee Weapon</div>
+        <div class="weapon-stats">
+          <span class="stat-pill">Silent</span>
+          <span class="stat-pill">Craftable</span>
+          <span class="stat-pill">No Ammo</span>
+        </div>
+      </div>
+      <div class="weapon-damage" aria-label="45 damage per hit">
+        <div class="damage-num">45</div>
+        <div class="damage-label">dmg/hit</div>
+      </div>
+    </article>
+
+    <article class="weapon-row reveal" style="transition-delay:.07s" tabindex="0" aria-label="Hatchet, 30 damage">
+      <div class="weapon-icon" aria-hidden="true">
+        <svg width="48" height="22" viewBox="0 0 48 22" fill="none">
+          <rect x="22" y="6" width="4" height="14" rx="1" fill="#1a1000" stroke="rgba(212,197,169,.3)" stroke-width="1"/>
+          <path d="M18 4 L30 4 L28 12 L16 12 Z" fill="#2a1800" stroke="rgba(212,197,169,.4)" stroke-width="1"/>
+        </svg>
+      </div>
+      <div class="weapon-main">
+        <div class="weapon-name">HATCHET</div>
+        <div class="weapon-category">Melee / Tool</div>
+        <div class="weapon-stats">
+          <span class="stat-pill">Craftable</span>
+          <span class="stat-pill">Dual Use</span>
+          <span class="stat-pill">Fast</span>
+        </div>
+      </div>
+      <div class="weapon-damage" aria-label="30 damage per hit">
+        <div class="damage-num">30</div>
+        <div class="damage-label">dmg/hit</div>
+      </div>
+    </article>
+
+  </div>
+</section>
+
+<!-- FEATURED BANNER -->
+<section id="featured" aria-label="Featured highlight">
+  <div class="banner-inner">
+    <div class="reveal-left">
+      <span class="banner-label">// This Season's Drop</span>
+      <h2 class="banner-title">THE WARLORD<br/>COLLECTION</h2>
+      <p class="banner-body">A premium limited-edition set inspired by the server warlords who built empires from nothing. Every piece earned, never gifted.</p>
+      <ul class="feature-list" aria-label="Collection contents">
+        <li class="feature-item"><div class="feature-dot" aria-hidden="true"></div>Full armor set — 5 pieces</li>
+        <li class="feature-item"><div class="feature-dot" aria-hidden="true"></div>AK-47 Warlord Edition skin</li>
+        <li class="feature-item"><div class="feature-dot" aria-hidden="true"></div>Exclusive door & wall skins</li>
+        <li class="feature-item"><div class="feature-dot" aria-hidden="true"></div>Animated campfire effect</li>
+      </ul>
+      <a href="#skins" class="btn-primary" style="width:fit-content">
+        View Collection
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+      </a>
+    </div>
+    <div class="banner-visual reveal-right" aria-label="Warlord collection visual">
+      <div style="position:absolute;inset:0;background:radial-gradient(ellipse at 50% 50%,rgba(194,68,14,.3),rgba(8,8,8,.9))"></div>
+      <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center">
+        <svg width="220" height="320" viewBox="0 0 220 320" fill="none" aria-hidden="true">
+          <ellipse cx="110" cy="58" rx="38" ry="40" fill="#1a0800" stroke="rgba(232,93,4,.5)" stroke-width="2"/>
+          <rect x="58" y="96" width="104" height="124" rx="12" fill="#1a0800" stroke="rgba(232,93,4,.35)" stroke-width="1.5"/>
+          <rect x="20" y="100" width="40" height="100" rx="8" fill="#150600" stroke="rgba(232,93,4,.25)" stroke-width="1"/>
+          <rect x="160" y="100" width="40" height="100" rx="8" fill="#150600" stroke="rgba(232,93,4,.25)" stroke-width="1"/>
+          <rect x="64" y="218" width="40" height="90" rx="8" fill="#150600" stroke="rgba(232,93,4,.25)" stroke-width="1"/>
+          <rect x="116" y="218" width="40" height="90" rx="8" fill="#150600" stroke="rgba(232,93,4,.25)" stroke-width="1"/>
+          <rect x="58" y="96" width="104" height="42" rx="12" fill="rgba(232,93,4,.18)"/>
+          <line x1="58" y1="138" x2="162" y2="138" stroke="rgba(232,93,4,.2)" stroke-width="1.5"/>
+          <rect x="78" y="108" width="64" height="20" rx="4" fill="rgba(232,93,4,.1)" stroke="rgba(232,93,4,.2)" stroke-width="1"/>
+          <ellipse cx="110" cy="58" rx="28" ry="16" fill="rgba(232,93,4,.12)"/>
+        </svg>
+      </div>
+      <div style="position:absolute;inset:0;background:linear-gradient(180deg,transparent 40%,rgba(8,8,8,.6) 100%)"></div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-logo">RUST</div>
+  <div class="footer-tagline">The only winning move is not to die</div>
+  <nav class="footer-links" aria-label="Footer navigation">
+    <a href="#models" class="footer-link">Player Models</a>
+    <a href="#skins" class="footer-link">Skins</a>
+    <a href="#weapons" class="footer-link">Weapons</a>
+    <a href="#featured" class="footer-link">Featured</a>
+  </nav>
+  <div class="footer-bottom">
+    <p>Rust™ is a trademark of Facepunch Studios. This is a fan showcase site.</p>
+  </div>
+</footer>
+
+<script>
+// ─── PARTICLES ────────────────────────────────────────────────
+(function(){
+  if(window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const container = document.getElementById('particles');
+  const drifts = [-30,-20,-10,0,10,20,30,40,-40];
+  const delays = [0,1.2,2.4,3.6,0.6,1.8,3.0,4.2,0.9,2.1,3.3,4.5,1.5,2.7];
+  const durations = [7,8,9,10,11,12,8.5,9.5];
+  for(let i=0;i<18;i++){
+    const p = document.createElement('div');
+    p.className = 'particle';
+    p.style.cssText = `
+      left:${Math.random()*100}%;
+      --dur:${durations[i%durations.length]}s;
+      --delay:${delays[i%delays.length]}s;
+      --drift:${drifts[i%drifts.length]}px;
+    `;
+    container.appendChild(p);
+  }
+})();
+
+// ─── REVEAL ON SCROLL ─────────────────────────────────────────
+(function(){
+  if(window.matchMedia('(prefers-reduced-motion: reduce)').matches){
+    document.querySelectorAll('.reveal,.reveal-left,.reveal-right').forEach(el=>el.classList.add('visible'));
+    return;
+  }
+  const io = new IntersectionObserver((entries)=>{
+    entries.forEach(e=>{
+      if(e.isIntersecting){
+        e.target.classList.add('visible');
+        io.unobserve(e.target);
+      }
+    });
+  },{threshold:0.12,rootMargin:'0px 0px -40px 0px'});
+  document.querySelectorAll('.reveal,.reveal-left,.reveal-right').forEach(el=>io.observe(el));
+})();
+
+// ─── NAVBAR SCROLL ────────────────────────────────────────────
+(function(){
+  const nav = document.getElementById('navbar');
+  window.addEventListener('scroll',()=>{
+    nav.classList.toggle('scrolled', window.scrollY > 60);
+  },{passive:true});
+})();
+
+// ─── COUNT-UP ANIMATION ───────────────────────────────────────
+(function(){
+  if(window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const els = document.querySelectorAll('[data-count]');
+  const io = new IntersectionObserver((entries)=>{
+    entries.forEach(e=>{
+      if(!e.isIntersecting) return;
+      const el = e.target;
+      const target = +el.dataset.count;
+      const dur = 1800;
+      const start = performance.now();
+      function step(now){
+        const t = Math.min((now-start)/dur,1);
+        const ease = 1-Math.pow(1-t,3);
+        el.textContent = Math.round(ease*target);
+        if(t<1) requestAnimationFrame(step);
+      }
+      requestAnimationFrame(step);
+      io.unobserve(el);
+    });
+  },{threshold:0.5});
+  els.forEach(el=>io.observe(el));
+})();
+
+// ─── MODEL BAR ANIMATION ──────────────────────────────────────
+(function(){
+  if(window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const bars = document.querySelectorAll('.model-bar-fill');
+  const io = new IntersectionObserver((entries)=>{
+    entries.forEach(e=>{
+      if(e.isIntersecting){
+        // width already set via inline style, CSS transition handles it
+        e.target.style.width = e.target.style.width;
+        io.unobserve(e.target);
+      }
+    });
+  },{threshold:0.5});
+  bars.forEach(b=>{
+    const w = b.style.width;
+    b.style.width = '0';
+    requestAnimationFrame(()=>{ b.style.width = w; });
+    io.observe(b);
+  });
+})();
+</script>
+</body>
+</html>
